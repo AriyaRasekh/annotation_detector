@@ -1,4 +1,6 @@
 import copy
+import os
+
 import numpy as np
 import cv2
 import random
@@ -384,15 +386,29 @@ if __name__ == '__main__':
 
     SHOW_BBOX = True
     X_RAY_SCAN_IDS_PATH = config.X_RAY_SCAN_IDS_PATH
-    OUTPUT_PATH = config.WHOLE_DATA_OUTPUT
+    OUTPUT_PATH = config.DATA_OUTPUT
+    DATASET_NAME = 'cxray800'
+    IMG_OUTPUT = f"{OUTPUT_PATH}{DATASET_NAME}\\images\\"
+    LABELS_OUTPUT = f"{OUTPUT_PATH}{DATASET_NAME}\\labels\\"
+
     image_ids = []
     annotation_data = []
-    # if not os.path.exists(OUTPUT_PATH):
-    #     os.makedirs(OUTPUT_PATH)
-    # if not os.path.exists(f"{OUTPUT_PATH}\\training_testing"):
-    #     os.makedirs(f"{OUTPUT_PATH}\\training_testing")
-    # if not os.path.exists(f"{OUTPUT_PATH}\\verification"):
-    #     os.makedirs(f"{OUTPUT_PATH}\\verification")
+
+    # creating dataset.yaml file containing dataset meta-data
+    dataset_meta_data = f"path: {config.DATA_OUTPUT}{DATASET_NAME}  # dataset root dir\n" \
+                        "train: images/train  # train images (relative to 'path')\n" \
+                        "val: images/train  # val images (relative to 'path')\n" \
+                        "names:\n" \
+                        "0: person\n"
+    with open(f"{config.DATASET_METADATA_PATH + DATASET_NAME}.yaml", "w") as text_file:
+        text_file.write(dataset_meta_data)
+
+    if not os.path.exists(f"{OUTPUT_PATH}{DATASET_NAME}"):
+        os.makedirs(f"{OUTPUT_PATH}{DATASET_NAME}")
+    if not os.path.exists(IMG_OUTPUT):
+        os.makedirs(IMG_OUTPUT)
+    if not os.path.exists(LABELS_OUTPUT):
+        os.makedirs(LABELS_OUTPUT)
 
     with open(X_RAY_SCAN_IDS_PATH, 'rb') as f:
         x_ray_ids = pickle.load(f)
@@ -407,9 +423,9 @@ if __name__ == '__main__':
     sample_out_put_counter = 0
     for counter in range(10):
         for id in x_ray_ids:
-            image_name = f"{str(pic_id).zfill(5)}.png"
+            image_name = f"{str(pic_id).zfill(5)}.jpg"
             med_scan = MedIMG(f"{config.X_RAY_SCAN_PATH}{id}")
-            writeStatus = med_scan.save_img(OUTPUT_PATH + image_name)
+            writeStatus = med_scan.save_img(f"{IMG_OUTPUT}{image_name}")
             if writeStatus:
                 image_ids.append(image_name)
                 pic_id += 1
@@ -419,11 +435,11 @@ if __name__ == '__main__':
                     annotation_image_data = Bbox.get_annotation_info_yoloV5(med_scan.image.shape[1], med_scan.image.shape[0])
                     # print(annotation_image_data)
                     # print(annotation_image_data)
-                    with open(f"{OUTPUT_PATH + image_name}.txt", "w") as text_file:
+                    with open(f"{LABELS_OUTPUT}{str(pic_id).zfill(5)}.txt", "w") as text_file:
                         text_file.write(annotation_image_data)
                     # print("------------------------")
                 if sample_out_put_counter <= SHOW_SAMPLE_OUT_PUT_MAX:
-                    plot_bounding_box(OUTPUT_PATH + image_name, f"{OUTPUT_PATH + image_name}.txt")
+                    plot_bounding_box(f"{IMG_OUTPUT}{image_name}", f"{LABELS_OUTPUT}{str(pic_id).zfill(5)}.txt")
                     sample_out_put_counter += 1
             else:
                 print(f"ERROR: can't write image {image_name} ")
