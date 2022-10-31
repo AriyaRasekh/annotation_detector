@@ -396,8 +396,9 @@ if __name__ == '__main__':
 
     # creating dataset.yaml file containing dataset meta-data
     dataset_meta_data = f"path: {config.DATA_OUTPUT}{DATASET_NAME}  # dataset root dir\n" \
-                        "train: images/train  # train images (relative to 'path')\n" \
-                        "val: images/train  # val images (relative to 'path')\n" \
+                        "train: images  # train images (relative to 'path')\n" \
+                        "val: images  # val images (relative to 'path')\n" \
+                        "test:\n" \
                         "names:\n" \
                         "0: person\n"
     with open(f"{config.DATASET_METADATA_PATH + DATASET_NAME}.yaml", "w") as text_file:
