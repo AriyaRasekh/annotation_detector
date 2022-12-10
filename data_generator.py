@@ -11,7 +11,7 @@ import config
 from bbox import Bbox
 
 DEBUG = False
-SHOW_SAMPLE_OUT_PUT_MAX = 5
+SHOW_SAMPLE_OUT_PUT_MAX = 0
 
 
 class MedIMG:
@@ -117,7 +117,7 @@ class MedIMG:
 
         self.watermark_word(text_box, l[0], l[1], fill_background=fill_background)
 
-        Bbox(l[0], l[1], r[0], r[1], TYPE=1)  # adding bbox
+        Bbox(l[0], l[1], r[0], r[1], TYPE=0)  # adding bbox
 
     def watermark_word(self, word, x, y, fill_background=False):
         if fill_background:
@@ -229,7 +229,7 @@ class MedIMG:
 
         self.watermark_handwritten_word(text_box, l[0], l[1], word_info["COLOR"])
 
-        Bbox(l[0], l[1], r[0], r[1], TYPE=1)  # adding bbox
+        Bbox(l[0], l[1], r[0], r[1], TYPE=0)  # adding bbox         TYPE is the object label
 
     @staticmethod
     def load_from_path(PATH):
@@ -352,6 +352,7 @@ class DataGenerator:
             self.r_x = None
             self.r_y = None
 
+
 def plot_bounding_box(image_file_path, annotation_file_path):
     image = cv2.imread(image_file_path, cv2.IMREAD_COLOR)
     with open(annotation_file_path, "r") as file:
@@ -387,7 +388,7 @@ if __name__ == '__main__':
     SHOW_BBOX = True
     X_RAY_SCAN_IDS_PATH = config.X_RAY_SCAN_IDS_PATH
     OUTPUT_PATH = config.DATA_OUTPUT
-    DATASET_NAME = 'cxray800'
+    DATASET_NAME = 'cxray800_2'
     IMG_OUTPUT = f"{OUTPUT_PATH}{DATASET_NAME}\\images\\"
     LABELS_OUTPUT = f"{OUTPUT_PATH}{DATASET_NAME}\\labels\\"
 
@@ -398,9 +399,9 @@ if __name__ == '__main__':
     dataset_meta_data = f"path: {config.DATA_OUTPUT}{DATASET_NAME}  # dataset root dir\n" \
                         "train: images  # train images (relative to 'path')\n" \
                         "val: images  # val images (relative to 'path')\n" \
-                        "test:\n" \
+                        "test: test_images\n" \
                         "names:\n" \
-                        "0: person\n"
+                        "  0: annotation\n"
     with open(f"{config.DATASET_METADATA_PATH + DATASET_NAME}.yaml", "w") as text_file:
         text_file.write(dataset_meta_data)
 
@@ -414,36 +415,44 @@ if __name__ == '__main__':
     with open(X_RAY_SCAN_IDS_PATH, 'rb') as f:
         x_ray_ids = pickle.load(f)
 
-    # cv2.namedWindow('test draw')
-    # training_pic_id = 0
-    # verification_pic_id = 0
-    # training_testing_ids = []
-    # verification_ids = []
+    # x_ray_ids = [1, 2, 3, 4, 5, 6]
+    # cv2.namedWindow('Data Generator')
+    training_pic_id = 0
+    verification_pic_id = 0
+    training_testing_ids = []
+    verification_ids = []
 
     pic_id = 0
     sample_out_put_counter = 0
     for counter in range(10):
         for id in x_ray_ids:
             image_name = f"{str(pic_id).zfill(5)}.jpg"
+            # med_scan = MedIMG(f"A:\\Glendor_data\\New folder\\{id}.png")
+
             med_scan = MedIMG(f"{config.X_RAY_SCAN_PATH}{id}")
-            writeStatus = med_scan.save_img(f"{IMG_OUTPUT}{image_name}")
+            # image_array = med_scan.image
+            # app = DataGenerator(image_array)
+
+
+            writeStatus = med_scan.save_img(f"{IMG_OUTPUT}test_{image_name}")
             if writeStatus:
-                image_ids.append(image_name)
-                pic_id += 1
-                for bounding_box in Bbox.all_per_img:
-                    # print("------------------------")
-                    # print(image_name)
-                    annotation_image_data = Bbox.get_annotation_info_yoloV5(med_scan.image.shape[1], med_scan.image.shape[0])
-                    # print(annotation_image_data)
-                    # print(annotation_image_data)
-                    with open(f"{LABELS_OUTPUT}{str(pic_id).zfill(5)}.txt", "w") as text_file:
-                        text_file.write(annotation_image_data)
-                    # print("------------------------")
-                if sample_out_put_counter <= SHOW_SAMPLE_OUT_PUT_MAX:
+
+                annotation_image_data = Bbox.get_annotation_info_yoloV5(med_scan.image.shape[1], med_scan.image.shape[0])
+                with open(f"{LABELS_OUTPUT}test_{str(pic_id).zfill(5)}.txt", "w") as text_file:
+                    text_file.write(annotation_image_data)
+
+                if sample_out_put_counter < SHOW_SAMPLE_OUT_PUT_MAX:
                     plot_bounding_box(f"{IMG_OUTPUT}{image_name}", f"{LABELS_OUTPUT}{str(pic_id).zfill(5)}.txt")
                     sample_out_put_counter += 1
+
+                image_ids.append(image_name)
+                pic_id += 1
+                print(f"successfully created image: {image_name} ")
+
+
             else:
                 print(f"ERROR: can't write image {image_name} ")
+
             Bbox.all_per_img = []
 
     # for counter in range(10):
