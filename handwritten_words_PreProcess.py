@@ -2,12 +2,16 @@ import numpy as np
 import cv2
 import pickle
 
-import os.path
+import os
 from data_generator import MedIMG
 import config
 
 DATA_PATH = config.RAW_HANDWRITTEN_WORDS_PATH
 OUTPUT_PATH = config.HANDWRITTEN_WORDS_PATH
+
+if not os.path.exists(f"{OUTPUT_PATH}"):  # creating out put directory
+    os.makedirs(f"{OUTPUT_PATH}")
+
 OUTPUT_LIST_ID = []
 pic_num = 1
 pic_name = f"TRAIN_{str(pic_num).zfill(5)}.jpg"
@@ -37,7 +41,6 @@ for counter in range(1000):
             elif c > bottom_crop_value:
                 bottom_crop_value = c
 
-
     for c, row in enumerate(img.T):
         if np.amin(row) < BLACKNESS_THRESHOLD:
 
@@ -46,20 +49,19 @@ for counter in range(1000):
             elif c > right_crop_value:
                 right_crop_value = c
 
-
-    # print(img.shape)
-
     top_crop_value -= 3
     bottom_crop_value += 3
     left_crop_value -= 3
     right_crop_value += 3
     crop_img = img[top_crop_value:bottom_crop_value, left_crop_value:right_crop_value]
-    img = cv2.imwrite(OUTPUT_PATH + pic_name,crop_img)
+
+    # saving processed image
+    writeStatus = cv2.imwrite(OUTPUT_PATH + pic_name, crop_img)
+    if writeStatus is None:
+        print(pic_name)
+        raise OSError
     OUTPUT_LIST_ID.append(pic_name)
 
-
-with open(f"{OUTPUT_PATH}img_names.pkl", "wb") as fp:   #Pickling
+with open(config.HANDWRITTEN_WORDS_IDS_PATH, "wb") as fp:  # Pickling
     pickle.dump(OUTPUT_LIST_ID, fp)
 
-for id in OUTPUT_LIST_ID:
-    print(f"{id}")
