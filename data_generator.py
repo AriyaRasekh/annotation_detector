@@ -1,6 +1,5 @@
 import copy
 import os
-
 import numpy as np
 import cv2
 import random
@@ -8,6 +7,7 @@ import requests
 import pickle
 
 import config
+import data_genetor_config
 from bbox import Bbox
 
 DEBUG = False
@@ -15,12 +15,12 @@ SHOW_SAMPLE_OUT_PUT_MAX = 0
 
 
 class MedIMG:
-    WHITENESS_THRESHOLD = 205  # any pixel value > WHITENESS_THRESHOLD wil be considered as background for handwritten words
+    WHITENESS_THRESHOLD = data_genetor_config.WHITENESS_THRESHOLD  # any pixel value > WHITENESS_THRESHOLD wil be considered as background for handwritten words
     WORD_DATA_BASE = config.WORD_DATA_BASE
     HANDWRITTEN_WORDS_PATH = config.HANDWRITTEN_WORDS_PATH
     HANDWRITTEN_WORDS_IDS_PATH = config.HANDWRITTEN_WORDS_IDS_PATH
-    NUM_PRINTED_TEXT = [0, 0, 1, 1, 2, 2, 3, 3, 4, 5]
-    NUM_HANDWRITTEN_WORDS = [0, 0, 1, 1, 2, 2, 3, 3, 4, 5]
+    NUM_PRINTED_TEXT = data_genetor_config.NUM_PRINTED_TEXT
+    NUM_HANDWRITTEN_WORDS = data_genetor_config.NUM_HANDWRITTEN_WORDS
 
     def __init__(self, PATH):
         self.OVERLAP = False
@@ -72,7 +72,7 @@ class MedIMG:
             print("returning None 67")
             return None
         x_c, y_c = int(x_initial + text_width / 2), int(y_initial - text_height / 2)
-        fill_background = True if random.random() < 0.1 else False
+        fill_background = True if random.random() < data_genetor_config.text_background_probability else False
         # fill_background = Falbse
         newX, newY, newX2, newY2, M = MedIMG.get_rotated_points(x_c, y_c, word_info["ANGLE"], text_height, text_width)
 
@@ -140,26 +140,20 @@ class MedIMG:
 
     def generate_random_word_info(self, handwritten=False):
 
-        available_fonts = [0, 1, 2, 3]
+        AVAILABLE_FONTS = data_genetor_config.AVAILABLE_FONTS
+        AVAILABLE_COLORS = data_genetor_config.AVAILABLE_COLORS
+        AVAILABLE_THICKNESS = data_genetor_config.AVAILABLE_THICKNESS
+        AVAILABLE_LINE_TYPES = data_genetor_config.AVAILABLE_LINE_TYPES
+        AVAILABLE_SIZES = data_genetor_config.AVAILABLE_SIZES
+        ANGELS = data_genetor_config.ANGELS
 
-        available_colors = [(255, 255, 255),
-                            (255, 255, 0),
-                            (255, 0, 255),
-                            (0, 255, 255)]
-
-        available_thickness = [1, 2]
-        available_lineType = [2]
-        # ------------------------------
-        available_sizes = [75, 100, 100, 100, 150, 200, 300]
-        angels = [0, 0, 0, 45, 90, 180, 270, 315]
-
-        ANGLE = angels[random.randrange(len(angels))]
-        FONT = available_fonts[random.randrange(len(available_fonts))]
-        COLOR = available_colors[random.randrange(len(available_colors))]
+        ANGLE = ANGELS[random.randrange(len(ANGELS))]
+        FONT = AVAILABLE_FONTS[random.randrange(len(AVAILABLE_FONTS))]
+        COLOR = AVAILABLE_COLORS[random.randrange(len(AVAILABLE_COLORS))]
 
         if handwritten:
             # ONLY hand-written word specifics
-            RESIZE = available_sizes[random.randrange(len(available_sizes))]
+            RESIZE = AVAILABLE_SIZES[random.randrange(len(AVAILABLE_SIZES))]
             COLOR = (random.randrange(255), random.randrange(255), random.randrange(255))
             word_info = {
                 "ANGLE": ANGLE,
@@ -169,8 +163,8 @@ class MedIMG:
 
         else:
             # ONLY printed word specifics
-            THICKNESS = available_thickness[random.randrange(len(available_thickness))]
-            LINE_TYPE = available_lineType[random.randrange(len(available_lineType))]
+            THICKNESS = AVAILABLE_THICKNESS[random.randrange(len(AVAILABLE_THICKNESS))]
+            LINE_TYPE = AVAILABLE_LINE_TYPES[random.randrange(len(AVAILABLE_LINE_TYPES))]
             WORD = self.WORDS[random.randrange(len(self.WORDS))]
             if DEBUG: print(f"picked word is {WORD}")
 
@@ -426,15 +420,11 @@ if __name__ == '__main__':
     sample_out_put_counter = 0
     for counter in range(10):
         for id in x_ray_ids:
+
             image_name = f"{str(pic_id).zfill(5)}.jpg"
-            # med_scan = MedIMG(f"A:\\Glendor_data\\New folder\\{id}.png")
-
             med_scan = MedIMG(f"{config.X_RAY_SCAN_PATH}{id}")
-            # image_array = med_scan.image
-            # app = DataGenerator(image_array)
-
-
             writeStatus = med_scan.save_img(f"{IMG_OUTPUT}test_{image_name}")
+
             if writeStatus:
 
                 annotation_image_data = Bbox.get_annotation_info_yoloV5(med_scan.image.shape[1], med_scan.image.shape[0])
