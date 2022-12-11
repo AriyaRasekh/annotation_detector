@@ -5,7 +5,7 @@ import cv2
 import random
 import requests
 import pickle
-
+import splitfolders
 import config
 import data_genetor_config
 from bbox import Bbox
@@ -380,9 +380,10 @@ def plot_bounding_box(image_file_path, annotation_file_path):
 if __name__ == '__main__':
 
     SHOW_BBOX = True
+    NUMBER_OF_SYNTHETIC_IMAGES = data_genetor_config.NUMBER_OF_SYNTHETIC_IMAGES
     X_RAY_SCAN_IDS_PATH = config.X_RAY_SCAN_IDS_PATH
     OUTPUT_PATH = config.DATA_OUTPUT
-    DATASET_NAME = 'cxray800_2'
+    DATASET_NAME = data_genetor_config.DATA_SET_NAME
     IMG_OUTPUT = f"{OUTPUT_PATH}{DATASET_NAME}\\images\\"
     LABELS_OUTPUT = f"{OUTPUT_PATH}{DATASET_NAME}\\labels\\"
 
@@ -391,9 +392,9 @@ if __name__ == '__main__':
 
     # creating dataset.yaml file containing dataset meta-data
     dataset_meta_data = f"path: {config.DATA_OUTPUT}{DATASET_NAME}  # dataset root dir\n" \
-                        "train: images  # train images (relative to 'path')\n" \
-                        "val: images  # val images (relative to 'path')\n" \
-                        "test: test_images\n" \
+                        "train: images\\train\\class1  # train images (relative to 'path')\n" \
+                        "val: images\\val\\class1  # val images (relative to 'path')\n" \
+                        "test: \n" \
                         "names:\n" \
                         "  0: annotation\n"
     with open(f"{config.DATASET_METADATA_PATH + DATASET_NAME}.yaml", "w") as text_file:
@@ -403,14 +404,16 @@ if __name__ == '__main__':
         os.makedirs(f"{OUTPUT_PATH}{DATASET_NAME}")
     if not os.path.exists(IMG_OUTPUT):
         os.makedirs(IMG_OUTPUT)
+    if not os.path.exists(f"{IMG_OUTPUT}class1"):
+        os.makedirs(f"{IMG_OUTPUT}class1")
+    if not os.path.exists(IMG_OUTPUT):
+        os.makedirs(IMG_OUTPUT)
     if not os.path.exists(LABELS_OUTPUT):
         os.makedirs(LABELS_OUTPUT)
 
     with open(X_RAY_SCAN_IDS_PATH, 'rb') as f:
         x_ray_ids = pickle.load(f)
 
-    # x_ray_ids = [1, 2, 3, 4, 5, 6]
-    # cv2.namedWindow('Data Generator')
     training_pic_id = 0
     verification_pic_id = 0
     training_testing_ids = []
@@ -418,12 +421,16 @@ if __name__ == '__main__':
 
     pic_id = 0
     sample_out_put_counter = 0
-    for counter in range(10):
+    generated_image_counter = 0
+    while generated_image_counter < NUMBER_OF_SYNTHETIC_IMAGES:
+
         for id in x_ray_ids:
+            if generated_image_counter >= NUMBER_OF_SYNTHETIC_IMAGES:
+                break
 
             image_name = f"{str(pic_id).zfill(5)}.jpg"
             med_scan = MedIMG(f"{config.X_RAY_SCAN_PATH}{id}")
-            writeStatus = med_scan.save_img(f"{IMG_OUTPUT}test_{image_name}")
+            writeStatus = med_scan.save_img(f"{IMG_OUTPUT}class1\\test_{image_name}")
 
             if writeStatus:
 
@@ -437,7 +444,8 @@ if __name__ == '__main__':
 
                 image_ids.append(image_name)
                 pic_id += 1
-                print(f"successfully created image: {image_name} ")
+                print(f"{image_name} successfully created.")
+                generated_image_counter += 1
 
 
             else:
@@ -445,102 +453,6 @@ if __name__ == '__main__':
 
             Bbox.all_per_img = []
 
-    # for counter in range(10):
-    #
-    #     for id in x_ray_ids:
-    #         if counter < 8:
-    #             saving_dic = f"{OUTPUT_PATH}\\training_testing\\"
-    #             pic_id = f"TRAIN_{str(training_pic_id).zfill(5)}.jpg"
-    #             training_pic_id += 1
-    #         else:
-    #             saving_dic = f"{OUTPUT_PATH}\\verification\\"
-    #             pic_id = f"VERIFICATION{str(verification_pic_id).zfill(5)}.jpg"
-    #             verification_pic_id += 1
-    #
-    #         med_scan = MedIMG(f"{config.X_RAY_SCAN_PATH}{id}")
-    #         writeStatus = med_scan.save_img(saving_dic + pic_id)
-    #         if writeStatus:
-    #             if counter < 8:
-    #                 training_testing_ids.append(pic_id)
-    #             else:
-    #                 verification_ids.append(pic_id)
-    #         Bbox.all_per_img = []
-    #     counter += 1
-    #
-    # with open(f"{OUTPUT_PATH}training_testing.pkl", "wb") as fp:  # Pickling
-    #     pickle.dump(training_testing_ids, fp)
-    # with open(f"{OUTPUT_PATH}verification_ids.pkl", "wb") as fp:
-    #     pickle.dump(verification_ids, fp)
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #     # image_array = med_scan.image
-    #     # app = DataGenerator(image_array)
-    #     # cv2.setMouseCallback('test draw', app.draw_line)
-    #     #
-    #     # # while True:
-    #     # if SHOW_BBOX:
-    #     #     cv2.imshow('test draw', app.bbox_img)
-    #     # else:
-    #     #     cv2.imshow('test draw', app.no_bbox_img)
-    #     #
-    #     # key = cv2.waitKey(1)
-    #     #
-    #     # if key == ord('s'):  # save and exit
-    #     #     app.save_img()
-    #     #     print("saving...")
-    #     #     break
-    #     #
-    #     # elif key == ord('r'):
-    #     #     app.make_random_line()
-    #     #
-    #     # elif key == ord('b'):
-    #     #     SHOW_BBOX = not SHOW_BBOX
-    #     #
-    #     # elif key == ord(' '):
-    #     #     app.add_to_bbox()
-    # #
-    # cv2.destroyAllWindows()
-
-#
-# # Get any random annotation file
-# annotation_file = random.choice(annotations)
-# with open(annotation_file, "r") as file:
-#     annotation_list = file.read().split("\n")[:-1]
-#     annotation_list = [x.split(" ") for x in annotation_list]
-#     annotation_list = [[float(y) for y in x] for x in annotation_list]
-#
-# # Get the corresponding image file
-# image_file = annotation_file.replace("annotations", "images").replace("txt", "png")
-# assert os.path.exists(image_file)
-#
-# # Load the image
-# image = Image.open(image_file)
-#
-# # Plot the Bounding Box
-# plot_bounding_box(image, annotation_list)
+    # partition data-set
+    splitfolders.ratio(IMG_OUTPUT, output=IMG_OUTPUT, ratio=(1-data_genetor_config.VALIDATION_SIZE, data_genetor_config.VALIDATION_SIZE), move=True)
+    os.rmdir(f"{IMG_OUTPUT}class1")
