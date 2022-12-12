@@ -406,6 +406,8 @@ if __name__ == '__main__':
         os.makedirs(IMG_OUTPUT)
     if not os.path.exists(f"{IMG_OUTPUT}class1"):
         os.makedirs(f"{IMG_OUTPUT}class1")
+    if not os.path.exists(f"{LABELS_OUTPUT}class1"):
+        os.makedirs(f"{LABELS_OUTPUT}class1")
     if not os.path.exists(IMG_OUTPUT):
         os.makedirs(IMG_OUTPUT)
     if not os.path.exists(LABELS_OUTPUT):
@@ -435,7 +437,7 @@ if __name__ == '__main__':
             if writeStatus:
 
                 annotation_image_data = Bbox.get_annotation_info_yoloV5(med_scan.image.shape[1], med_scan.image.shape[0])
-                with open(f"{LABELS_OUTPUT}test_{str(pic_id).zfill(5)}.txt", "w") as text_file:
+                with open(f"{LABELS_OUTPUT}class1\\test_{str(pic_id).zfill(5)}.txt", "w") as text_file:
                     text_file.write(annotation_image_data)
 
                 if sample_out_put_counter < SHOW_SAMPLE_OUT_PUT_MAX:
@@ -453,6 +455,8 @@ if __name__ == '__main__':
 
             Bbox.all_per_img = []
 
-    # partition data-set
+    # partition data-set, lucking the seed ensure same text files are copied in the corresponding directories
     splitfolders.ratio(IMG_OUTPUT, output=IMG_OUTPUT, ratio=(1-data_genetor_config.VALIDATION_SIZE, data_genetor_config.VALIDATION_SIZE), move=True)
+    splitfolders.ratio(LABELS_OUTPUT, output=LABELS_OUTPUT, ratio=(1-data_genetor_config.VALIDATION_SIZE, data_genetor_config.VALIDATION_SIZE), move=True)
     os.rmdir(f"{IMG_OUTPUT}class1")
+    os.rmdir(f"{LABELS_OUTPUT}class1")
