@@ -1,18 +1,51 @@
-# patients' information detector on image
-Automatic detection of patients' information and annotation on medical images
+###Overview
+Medical data collection and sharing has always been a fundamental challenge for medical image research. 
+This is due to the Value and Importance of Health Information
+This project can address this issue by detecting any added information on medical images or 
+videos such as chest X-rays.\
+In this project, we will only focus on deleting added information 
+in form of telestration or printed/ handwritten text.
+It will be used to automatically remove patients’ sensitive information from data to
+facilitate data sharing and collection for such projects. 
+####There are 2 main steps in this project.
+**Data collection:** The first step is data collection, collecting target samples to create training, 
+validation, or testing datasets. 
+Collecting medical data is extremely difficult, costly, and
+time-consuming, therefore, we'll be using synthetic data to train and validate our models.
+Synthetic data is artificial data modeling a real-world robust data set. 
+Creating synthetic data allow us to have complete control over quantity of data and how it would look like. 
+We can set specific attributes and randomized variables to create a robust dataset. 
+The dataset should model real-world data.
+
+**Training and validation**:
+The next phase is to train and validate deep learning models using the synthetic data
 
 
-### Data Collection - Synthetic data
-data_generator.py generates images modeling 
-real-world medical data with specific attributes 
-and randomized variables to create a robust dataset. 
-It also provides drawing tools to manually create 
-annotations on a medical image. The created custom 
-dataset contains image and annotation data in a compatible 
-format with the YOLO V5 network using **Open-CV**, **Numpy** and **image processing**.\
-press and drag mouse to draw free-hand sketch\
-press **S** to save data\
-press **R** to randomized line size and color\
-press **B** to show/hide bounding boxes\
-press **SPACE** to capture bounding box of the last drawing\
-![img.png](img.png)
+###Installation Guide
+####Generate your synthetic data
+- clone the repository\
+`gh repo clone https://github.com/AriyaRasekh/annotation_detector`
+
+- set up the configurations, there are two configurations. _data_generator_config.py_ allow you to control 
+different parameters of generated data and data-sets.
+_config.py_ is used for path configuration. You can go with default values as I used relative path.\
+If you are on a linux machine, adjust path formats.
+- pre_process raw handwritten wor images\
+`python handwritten_words_PreProcess.py`\
+  This will get rid of background and margin, it will also generate a nice little pickle file.
+  It contains image IDs that _data_generator.py_ can work with.\
+  ![raw_TRAIN_00003.jpg](raw_TRAIN_00003.jpg) --->
+  ![TRAIN_00003.jpg](TRAIN_00003.jpg)
+- finally, create your data!\
+`python data_generator.py`
+#### Train your deep learning model
+####Select your model
+Train a model on your dataset by specifying dataset name, batch-size, image size and either pretrained --weights like 
+yolov5s.pt (recommended), or randomly initialized --weights '' --cfg yolov5s.yaml (not recommended).\
+You can find a list of pretrained models and some comparisons 
+[here](https://github.com/ultralytics/yolov5#pretrained-checkpoints). 
+We select YOLOv5s in this example, the second-smallest and fastest model available.
+####Train 
+Here we train YOLOv5s on Chest_xRay_1 for 3 epochs\
+`python train.py --img 640 --batch 16 --epochs 3 --data Chest_xRay_1.yaml --weights yolov5s.pt`\
+All training results are saved to runs/train/ with incrementing run directories, i.e. runs/train/exp2, runs/train/exp3 etc.
