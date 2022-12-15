@@ -24,7 +24,7 @@ The next phase is to train and validate deep learning models using the synthetic
 ### Installation Guide
 #### Generate your synthetic data
 - clone the repository\
-`gh repo clone https://github.com/AriyaRasekh/annotation_detector`
+`git clone https://github.com/AriyaRasekh/annotation_detector`
 
 - set up the configurations, there are two configurations. _data_generator_config.py_ allows you to control 
 different parameters of generated data and data sets.
