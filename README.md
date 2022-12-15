@@ -7,7 +7,7 @@ In this project, we will only focus on deleting added information
 in form of telestration or printed/ handwritten text.
 It will be used to automatically remove patients’ sensitive information from data to
 facilitate data sharing and collection for such projects. 
-####There are 2 main steps in this project.
+#### There are 2 main steps in this project.
 **Data collection:** The first step is data collection, collecting target samples to create training, 
 validation, or testing datasets. 
 Collecting medical data is extremely difficult, costly, and
@@ -21,8 +21,8 @@ The dataset should model real-world data.
 The next phase is to train and validate deep learning models using the synthetic data
 
 
-###Installation Guide
-####Generate your synthetic data
+### Installation Guide
+#### Generate your synthetic data
 - clone the repository\
 `gh repo clone https://github.com/AriyaRasekh/annotation_detector`
 
@@ -39,20 +39,20 @@ If you are on a Linux machine, adjust path formats.
 - finally, create your data!\
 `python data_generator.py`
 #### Train your deep-learning model
-####Select your model
+#### Select your model
 Train a model on your dataset by specifying dataset name, batch-size, image size and either pretrained --weights like 
 yolov5s.pt (recommended), or randomly initialized --weights '' --cfg yolov5s.yaml (not recommended).\
 You can find a list of pretrained models and some comparisons 
 [here](https://github.com/ultralytics/yolov5#pretrained-checkpoints). 
 We select YOLOv5s in this example, the second-smallest and fastest model available.
-####Train 
+#### Train 
 Here we train YOLOv5s on Chest_xRay_1 for 3 epochs\
 `python train.py --img 640 --batch 16 --epochs 3 --data Chest_xRay_1.yaml --weights yolov5s.pt`\
 All training results are saved to runs/train/ with incrementing run directories, i.e. runs/train/exp2, runs/train/exp3 etc.
 Here is some sample result, as we can see, it can detect most of the annotations, even though it's not perfect.
 
-####A sample prediction by a trained model on our synthetic data. It can detect most of the annotations, though it's not perfect
+#### A sample prediction by a trained model on our synthetic data. It can detect most of the annotations, though it's not perfect
 ![val_batch2_pred.jpg](val_batch2_pred.jpg)
 
-####Truth value represented by bounding boxes
+#### Truth value represented by bounding boxes
 ![val_batch2_labels.jpg](val_batch2_labels.jpg)
