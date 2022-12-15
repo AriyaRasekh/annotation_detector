@@ -32,7 +32,7 @@ _config.py_ is used for path configuration. You can go with default values as I 
 If you are on a Linux machine, adjust path formats.
 - pre_process raw handwritten wor images\
 `python handwritten_words_PreProcess.py`\
-  This will get rid of the background and margin, it will also generate a pickle file containing all image IDs which _data_generator.py_ can work with.\
+  This will get rid of the background and margin, it will also generate a pickle file containing all image IDs which _data_generator.py_ can use.\
   ![raw_TRAIN_00003.jpg](raw_TRAIN_00003.jpg) --->
   ![TRAIN_00003.jpg](TRAIN_00003.jpg)
 - finally, create your data!\
