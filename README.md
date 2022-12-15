@@ -49,7 +49,7 @@ We select YOLOv5s in this example, the second-smallest and fastest model availab
 Here we train YOLOv5s on Chest_xRay_1 for 3 epochs\
 `python train.py --img 640 --batch 16 --epochs 3 --data Chest_xRay_1.yaml --weights yolov5s.pt`\
 All training results are saved to runs/train/ with incrementing run directories, i.e. runs/train/exp2, runs/train/exp3 etc.
-Here is some sample result, as we can see, it can detect most of the annotations, even though it's not perfect.\
+Here is some sample result, as we can see, it can detect most of the annotations, even though it's not perfect.
 
 ####A sample prediction by a trained model on our synthetic data. It can detect most of the annotations, though it's not perfect
 ![val_batch2_pred.jpg](val_batch2_pred.jpg)
